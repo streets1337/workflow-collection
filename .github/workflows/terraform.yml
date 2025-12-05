@@ -24,18 +24,22 @@ jobs:
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_wrapper: false   # REQUIRED by tf-via-pr for detailed exit codes
+          
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Azure Login via OIDC
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - name: Setup TFLint
+        uses: terraform-linters/setup-tflint@v4
 
-      # ---------------------------------------------------------
-      # THIS IS THE CRITICAL PART YOU ASKED ABOUT
-      # The OP5dev/tf-via-pr action with all necessary arguments.
-      # ---------------------------------------------------------
+      - name: Init TFLint
+        run: tflint --init
+
+      - name: Run TFLint
+        run: tflint
+
+      - name: Checkov Security Scan
+        uses: bridgecrewio/checkov-action@v12
+
       - name: Terraform via PR (Plan or Apply)
         uses: op5dev/tf-via-pr@v13
         with:
