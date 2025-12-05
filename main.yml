@@ -1,0 +1,29 @@
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  provision:
+    runs-on: ubuntu-latest
+
+    permissions:
+      actions: read        
+      checks: write        
+      contents: read       
+      pull-requests: write 
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
+
+      # Run plan by default, or apply on merge.
+      - uses: op5dev/tf-via-pr@v13
+        with:
+          working-directory: path/to/directory
+          arg-backend-config: env/dev.tfbackend
+          arg-var-file: env/dev.tfvars
+          arg-workspace: dev-use1
